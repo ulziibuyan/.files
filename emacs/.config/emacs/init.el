@@ -9,9 +9,11 @@
  ;; If there is more than one, they won't work right.
  '(gptel-backend '(gptel-openai-oauth "ChatGPT"))
  '(gptel-model 'gpt-5.6-sol)
+ '(marginalia-mode t)
  '(scroll-bar-mode nil)
  '(tool-bar-position 'bottom)
- '(tool-bar-style 'text))
+ '(tool-bar-style 'text)
+ '(vertico-mode t)
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
