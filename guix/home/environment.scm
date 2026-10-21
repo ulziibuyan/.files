@@ -11,6 +11,9 @@
  (gnu packages admin)
  (gnu packages librewolf)
  (gnu packages pulseaudio)
+ (gnu packages emacs)
+ (gnu packages terminals)
+
  (guix gexp))
 
 (home-environment
@@ -18,7 +21,12 @@
   (append
    (list
     librewolf
+    emacs-pgtk
+
+    ;font-inter
+    
     pavucontrol
+    alacritty
     tree)
    %base-packages))
  (services
@@ -30,7 +38,7 @@
       (home-dotfiles-configuration
         (directories '(".files"))
         (layout 'stow)
-        (packages '("eww"))))
+        (packages '("alacritty" "emacs" "eww" "hypr"))))
     (simple-service
      'user-fontconfig-rules
      home-fontconfig-service-type

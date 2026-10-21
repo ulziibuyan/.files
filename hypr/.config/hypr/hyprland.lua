@@ -32,7 +32,7 @@ hl.monitor({
     output   = "desc: SGT XT27U20 0x0000000",
     mode     = "preferred",
     position = "auto",
-    scale    = "0.83",
+    scale    = "auto",
     cm       = "hdr",
     bitdepth = 10,
 })
@@ -43,6 +43,7 @@ hl.monitor({
 
 -- Set programs that you use
 local terminal    = "alacritty"
+local editor      = "emacs"
 local fileManager = "dolphin"
 local menu        = "hyprlauncher"
 local onscreen_kb = "wvkbd-mobintl -H 360 -L 264 --fn 'Forma DJR Mono Medium 15'"
@@ -292,7 +293,8 @@ hl.config({
 local mainMod = "SUPER" -- Sets "Windows" key as main modifier
 
 -- Example binds, see https://wiki.hypr.land/Configuring/Basics/Binds/ for more
-hl.bind(mainMod .. " + Q", hl.dsp.exec_cmd(terminal))
+hl.bind(mainMod .. " + Q", hl.dsp.exec_cmd(editor))
+hl.bind(mainMod .. " + return", hl.dsp.exec_cmd(terminal))
 local closeWindowBind = hl.bind(mainMod .. " + C", hl.dsp.window.close())
 -- closeWindowBind:set_enabled(false)
 hl.bind(mainMod .. " + M",

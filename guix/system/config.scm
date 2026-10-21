@@ -1,78 +1,91 @@
 ;; -*- mode: scheme; -*-
-;; This is an operating system configuration template
-;; for a "desktop" setup without full-blown desktop
-;; environments.
+(use-modules
+ (gnu)
+ (gnu system nss)
+ (gnu services ssh)
+ (gnu services xorg)
+ (gnu services guix)
+ (gnu packages window-management)
+ (gnu packages version-control)
+ (gnu packages rsync)
+ (gnu packages gnuzilla)
+ (guix channels)
+ (nongnu packages linux)
+ (nongnu system linux-initrd))
 
-(use-modules (gnu)
-	     (gnu system nss)
-	     (gnu services ssh)
-	     (gnu services xorg)
-	     (gnu services guix)
-	     (gnu packages window-management)
-	     (gnu packages version-control)
-	     (gnu packages rsync)
-	     (gnu packages gnuzilla)
-             (guix channels)
-	     (nongnu packages linux)
-             (nongnu system linux-initrd))
-
-(use-service-modules desktop)
-(use-package-modules bootloaders certs emacs wm xorg)
+(use-service-modules
+ desktop)
+(use-package-modules
+ bootloaders certs emacs xorg)
 
 (operating-system
  (kernel linux)
  (initrd microcode-initrd)
  (firmware (list linux-firmware))
  
-  (host-name "gnutopia")
-  (timezone "America/Chicago")
-  (locale "en_US.utf8")
+ (host-name "lgo")
+ (timezone "Etc/GMT-8")
+ (locale "en_US.utf8")
+ 
+ (bootloader
+  (bootloader-configuration
+   (bootloader grub-efi-bootloader)
+   (targets '("/boot/esp"))))
+ 
+ (file-systems
+  (append
+   (list
+    (file-system
+     (mount-point "/")
+     (device (file-system-label "root"))
+     (type "btrfs")
+     (options "subvol=guix/rootfs"))
+    
+    (file-system
+     (mount-point "/home")
+     (device (file-system-label "data"))
+     (type "btrfs")
+     (options "subvol=home"))
 
-  ;; Use the UEFI variant of GRUB with the EFI System
-  ;; Partition mounted on /boot/esp.
-  (bootloader (bootloader-configuration
-                (bootloader grub-efi-bootloader)
-                (targets '("/boot/esp"))))
-
-  ;; Assume the target root file system is labelled "root",
-  ;; and the EFI System Partition has UUID 1234-ABCD.
-  (file-systems (append
-                 (list (file-system
-                         (device (file-system-label "root"))
-                         (mount-point "/")
-                         (type "btrfs")
-                         (options "subvol=guix/rootfs"))
-                       (file-system
-                        (device (uuid "/dev/nvme0n1p1" 'fat))
-                         (mount-point "/boot/esp")
-                         (type "vfat")))
-                 %base-file-systems))
-
-  (users (cons (user-account
-                (name "gnu-zi")
-                (comment "GN/Uzi")
-                (group "users")
-                (supplementary-groups '("wheel" "netdev"
-                                        "audio" "video")))
-               %base-user-accounts))
-
-  ;; Add a bunch of window managers; we can choose one at
-  ;; the log-in screen with F1.
-  (packages (append (list
-                     ;; window managers
-                     hyprland
-                     ;; terminal programs
-                     emacs git rsync
-		     ;; graphical programs
-		     icecat)
-                    %base-packages))
-
-  ;; Use the "desktop" services, which include the X11
-  ;; log-in service, networking with NetworkManager, and more.
-  (services (append (list
-		     (service openssh-service-type)
-                     (service gnome-desktop-service-type)))
-                    %desktop-services))
-
-  ;; Allow resolution of '.local' host names with mDNS.
-  (name-service-switch %mdns-host-lookup-nss))
+    (file-system
+     (mount-point "/boot/esp")
+     (device "/dev/nvme0n1p1")
+     (type "vfat")))
+   %base-file-systems))
+ 
+ (swap-devices
+  (list
+   (swap-space
+    (target
+     (file-system-label "swap")))))
+ (users
+  (cons
+   (user-account
+    (name "user")
+    (group "wheel")
+    (uid 1001)
+    (supplementary-groups
+     '("netdev" "audio" "video")))
+   %base-user-accounts))
+ (packages
+  (append
+   (list
+    emacs git rsync
+    xterm twm icecat hyprland)
+   %base-packages))
+ (services
+  (append
+   (list
+    (service openssh-service-type)
+    (service gnome-desktop-service-type)
+    (service startx-command-service-type)
+    (simple-service 'nonguix-substitutes guix-service-type
+     (guix-extension
+      (substitute-urls '("https://substitutes.nonguix.org"))
+      (authorized-keys
+       (list
+	(plain-file
+	 "non-guix.pub"
+	 "(public-key (ecc (curve Ed25519)
+            (q #C1FD53E5D4CE971933EC50C9F307AE2171A2D3B52C804642A7A35F84F3A4EA98#)))"))))))
+  %desktop-services)))
