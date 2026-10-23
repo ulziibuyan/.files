@@ -1,10 +1,11 @@
 ;;; -*- lexical-binding: t -*-
 (require 'use-package)
+
 (use-package gptel
   :ensure t
   :config (setq gptel-model 'gpt-5.6-sol
-		gptel-backend (gptel-make-openai-oauth "ChatGPT"))
-g
+		gptel-backend (gptel-make-openai-oauth "ChatGPT")))
+
 (use-package marginalia
   :ensure t
   :init (marginalia-mode 1))
